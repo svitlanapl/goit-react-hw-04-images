@@ -1,28 +1,78 @@
 import React, { Component } from "react";
+import { fetchImages } from 'components/ImagesApi/ImagesApi';
 import { SearchbarForm } from 'components/Searchbar';
-// import { fetchImages } from 'components/ImagesApi/ImagesApi';
+import { ImageGallery } from "components/ImageGallery";
+// import { SearchbarForm } from 'components/Searchbar';
+
 
 
 export class App extends Component {
   state = {
-    query: null,
+    imagesArrey: [],
+    searchQuery: '',
+    page: 1,
+    totalImages: 0,
+    currentImageUrl: null,
+    currentImageDescription: null,
+    // showModal: false,
+    // isLoading: false,
+    // error: false
+    
   };
 
-  // componentDidMount(query, page = 1) {
-  //   fetch(`${BASE_URL}?q=${query}&page=${page}&key=${API_KEY}&${FILTER}&per_page=${PER_PAGE}`)
-  //     .then(response => response.json())
-  //     // .then(console.log)
-  //     .then(query => this.setState({ query }));
-  //  };
+  componentDidUpdate(_, prevState) {
+    const prevQuery = prevState.searchQuery;
+    const nextQuery = this.state.searchQuery;
+    const prevPage = prevState.page;
+    const nextPage = this.state.page;
 
-  render() { 
+    if (prevQuery !== nextQuery || prevPage !== nextPage) {
+      this.fetchImagesArrey();
+    };
+  };
+  
+  fetchImagesArrey = () => {
+    const { searchQuery, page } = this.state;
+    this.setState();
+    fetchImages(searchQuery, page)
+      .then(imagesArrey =>
+        this.setState(prevState => ({
+          imagesArrey: [...prevState.imagesArrey, ...imagesArrey],
+          // totalImages: response.totalHist,
+        }))
+      )
+    // .catch(error => this.setState({ error: true }))
+    // .finally(() => this.setState({ isLoading: false }));
+  };
+
+  getSearchRequest = (query = '') => {
+    if (this.setState.searchQuery !== query && query !== '') {
+      this.setState({
+        imagesArrey: [],
+        searchQuery: query,
+        page: 1,
+        totalImages: 0,
+      });
+    };
+  };
+
+  render() {
+    const {
+      imagesArrey,
+      // searchQuery,
+      // page,
+      // totalImages
+    } = this.state;
+
     return (
       <div>
-      <SearchbarForm
-          searchImage={this.searchImage}>
-        </SearchbarForm>
+        <SearchbarForm onSubmit={this.getSearchRequest} />
+        {imagesArrey.length > 0 && (
+          <ImageGallery
+            imagesArrey={imagesArrey} />
+        )}
       </div>
-    ) 
-  };         
+    )
+  };
+};              
   
-};
