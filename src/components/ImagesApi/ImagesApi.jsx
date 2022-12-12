@@ -15,12 +15,8 @@ export async function fetchImages(query, page = 1) {
   } catch (error) {
     console.log(error.config);
     if (error.r) {
-      console.log(error.r.data);
-      console.log(error.r.status);
-      console.log(error.r.headers);
       throw Error('The server is not responding. Please try again later.');
     } else if (error.request) {
-      console.log(error.request);
       throw Error('The server is not responding. Please try again later.');
     } else {
       console.log('Error', error.message);
