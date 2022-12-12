@@ -1,52 +1,48 @@
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
-import PropTypes from 'prop-types';
 
-
-const initialValues = {
-  imageName: ''
-};
-
-let schema = yup.object().shape({
-  imageName: yup.string().required()
+const schema = yup.object().shape({
+  query: yup.string().required()
 });
 
-export const SearchbarForm = ({ searchImage }) => {
-  const handleSubmit = (values, { resetForm }) => {
-    console.log(values);
-    searchImage({
-      imageName: values.imageName,
-    });
+const initialValues = {
+  query: '',
+};
 
+export const SearchbarForm = () => {
+  const handleSubmit = (values, { resetForm }) => {
     resetForm();
   };
 
   return (
     <Formik
-      class="searchbar"
+      // class="searchbar"
       initialValues={initialValues}
       validationSchema={schema}
       onSubmit={handleSubmit}>
-      <Form class="form">
-        <button type="submit" class="button">
-          <span class="button-label">Search</span>
+      <Form 
+        // class="form"
+      >
+        <button type="submit"
+          // class="button"
+        >
+          <span
+            // class="button-label"
+          >Search</span>
         </button>
         
-        <input
-          class="input"
+        <Field
+          // class="input"
           type="text"
-          autocomplete="off"
-          autofocus
+          name="query"
+          // autocomplete="off"
+          // autofocus
           placeholder="Search images and photos"
         />
+        <ErrorMessage name="query" />
       </Form>
     </Formik>
   );
 };
-
-SearchbarForm.propTypes = {
-  searchImage: PropTypes.func.isRequired,
-};
- 
 
 
