@@ -1,78 +1,98 @@
-import React, { Component } from "react";
-import { fetchImages } from 'components/ImagesApi/ImagesApi';
-import { SearchbarForm } from 'components/Searchbar';
-import { ImageGallery } from "components/ImageGallery";
-// import { SearchbarForm } from 'components/Searchbar';
+import { Component } from 'react';
+import { Searchbar } from '../Searchbar/Searchbar';
+import { fetchImg } from '../ImageApi/ImageApi';
+import { ImageGallery } from '../ImageGallery/ImageGallery';
+import { Loader } from '../Loader/Loader';
+import { Modal } from '../Modal/Modal';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { Button } from '../Button/Button';
 
+// const status = {
+//   IDLE: 'idle',
+//   PENDING: 'pending',
+//   RESOLVED: 'resolved',
+//   REJECTED: 'rejected',
+// };
 
 export class App extends Component {
   state = {
-    imagesArrey: [],
-    searchQuery: '',
+    // status: status.IDLE,
+    query: '',
+    images: [],
+    showButton: false,
     page: 1,
-    totalImages: 0,
-    currentImageUrl: null,
-    currentImageDescription: null,
-    // showModal: false,
-    // isLoading: false,
-    // error: false
-    
+    isLoading: false,
+    selectedImg: null,
+    error: null,
   };
 
-  componentDidUpdate(_, prevState) {
-    const prevQuery = prevState.searchQuery;
-    const nextQuery = this.state.searchQuery;
+  handleFormSubmit = query => {
+    this.setState({ query });
+  };
+
+  componentDidUpdate = (_, prevState) => {
+    const prevQuery = prevState.query;
     const prevPage = prevState.page;
-    const nextPage = this.state.page;
+    const { query, page } = this.state;
 
-    if (prevQuery !== nextQuery || prevPage !== nextPage) {
-      this.fetchImagesArrey();
-    };
-  };
-  
-  fetchImagesArrey = () => {
-    const { searchQuery, page } = this.state;
-    this.setState();
-    fetchImages(searchQuery, page)
-      .then(imagesArrey =>
-        this.setState(prevState => ({
-          imagesArrey: [...prevState.imagesArrey, ...imagesArrey],
-          // totalImages: response.totalHist,
-        }))
-      )
-    // .catch(error => this.setState({ error: true }))
-    // .finally(() => this.setState({ isLoading: false }));
+    if (prevQuery !== query || prevPage !== page) {
+      this.setState({ isLoading: true });
+
+      fetchImg(query, page)
+        .then(images => {
+          images.data.hits.length === 0 && toast.info('Nothing found');
+          // console.log(query);
+
+          if (images.data.hits.length >= 12) {
+            this.setState({ showButton: true });
+          } else this.setState({ showButton: false });
+
+          if (prevQuery !== query) {
+            this.setState({ images: [...images.data.hits], isLoading: false });
+          } else
+            this.setState({
+              images: [...prevState.images, ...images.data.hits],
+              isLoading: false,
+            });
+        })
+        .catch(error => {
+          this.setState({
+            error: toast.error('Something wrong, reload the page'),
+          });
+        });
+    }
+    <ToastContainer />;
   };
 
-  getSearchRequest = (query = '') => {
-    if (this.setState.searchQuery !== query && query !== '') {
-      this.setState({
-        imagesArrey: [],
-        searchQuery: query,
-        page: 1,
-        totalImages: 0,
-      });
-    };
+  closeModal = () => {
+    this.setState({ selectedImg: null });
+  };
+
+  selectImg = imageUrl => {
+    this.setState({ selectedImg: imageUrl });
+  };
+
+  loadMoreBtn = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   render() {
-    const {
-      imagesArrey,
-      // searchQuery,
-      // page,
-      // totalImages
-    } = this.state;
-
+    const { error, isLoading, selectedImg, showButton } = this.state;
     return (
-      <div>
-        <SearchbarForm onSubmit={this.getSearchRequest} />
-        {imagesArrey.length > 0 && (
-          <ImageGallery
-            imagesArrey={imagesArrey} />
+      <>
+        <Searchbar onSubmit={this.handleFormSubmit} />
+        {error && <p>{error}</p>}
+        <ImageGallery images={this.state.images} onSelect={this.selectImg} />
+        {isLoading && <Loader />}
+        {showButton && <Button onClick={this.loadMoreBtn}></Button>}
+        {selectedImg !== null && (
+          <Modal url={selectedImg} closeModal={this.closeModal}>
+            <img src={selectedImg} alt={selectedImg} />
+          </Modal>
         )}
-      </div>
-    )
-  };
-};              
-  
+      </>
+    );
+  }
+}

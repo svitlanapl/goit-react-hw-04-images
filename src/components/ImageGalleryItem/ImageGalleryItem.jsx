@@ -1,30 +1,17 @@
-import PropTypes from 'prop-types';
+import { ImageGalleryImageStyled } from './ImageGalleryItem.styled';
 
 export const ImageGalleryItem = ({
-  id,
-  openModal,
-  webformatURL,
-  largeImageURL,
-  description
+  image: { tags, largeImageURL, webformatURL },
+  onSelect,
 }) => {
   return (
-    <li class="gallery-item"
-      key={id}
-      onClick={openModal}>
-      <img
-        src={webformatURL}
-        alt={description}
-        data-large={largeImageURL}
-      />
-    </li>
+    <ImageGalleryImageStyled 
+      src={webformatURL}
+      alt={tags}
+      onClick={() => {
+        onSelect(largeImageURL);
+      }}
+    />
   );
-};
-
-ImageGalleryItem.prototype = {
-  key: PropTypes.number.isRequired,
-  openModal: PropTypes.func.isRequired,
-  webformatURL: PropTypes.string.isRequired,
-  largeImage: PropTypes.string.isRequired,
-  description: PropTypes.string,
 };
 
