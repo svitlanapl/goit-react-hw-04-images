@@ -1,33 +1,36 @@
-import { Component } from 'react';
+import React, { useEffect } from 'react';
 import { ModalStyled, OverlayStyled } from './Modal.styled';
 
-export class Modal extends Component {
+export const Modal = ({ closeModal, children }) => { 
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
 
-  onKeyDown = event => {
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    }
+  })
+  
+  const onKeyDown = event => {
     if (event.code === 'Escape') {
-      this.props.closeModal();
+      closeModal();
     }
-  }; 
-
-  componentDidMount = () => {
-    window.addEventListener('keydown', this.onKeyDown);
   };
-
-  componentWillUnmount = () => {
-    window.removeEventListener('keydown', this.onKeyDown);
-  };
-
-  onOverlay = event => {
+  
+  const onOverlay = event => {
     if (event.currentTarget === event.target) {
-      this.props.closeModal();
+      closeModal();
     }
   };
 
-  render() {
-    return (
-      <OverlayStyled onClick={this.onOverlay}>
-        <ModalStyled>{this.props.children}</ModalStyled>
+  return (
+      <OverlayStyled onClick={onOverlay}>
+        <ModalStyled>{children}</ModalStyled>
       </OverlayStyled>
     );
-  }
-}
+
+};
+
+
+    
+  
+
